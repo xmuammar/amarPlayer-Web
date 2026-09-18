@@ -1,0 +1,17 @@
+{
+    "name": "amarPlayer Web",
+    "short_name": "amarPlayer",
+    "description": "amarPlayer Web Music Player",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#101010",
+    "theme_color": "#181818",
+    "icons": [
+        {
+            "src": "icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}

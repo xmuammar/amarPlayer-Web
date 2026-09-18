@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#181818">
+
+    <title>amarPlayer Web</title>
+
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">A</div>
+            <div>
+                <h1>amarPlayer</h1>
+                <small>Web</small>
+            </div>
+        </div>
+
+        <div class="library-info">
+            <span>Library</span>
+            <strong id="songCount">0 lagu</strong>
+        </div>
+
+        <input
+            type="search"
+            id="searchInput"
+            placeholder="Cari lagu..."
+        >
+    </aside>
+
+
+    <main class="main">
+
+        <section class="now-playing">
+
+            <div class="album-art" id="albumArt">
+                ♪
+            </div>
+
+            <div class="track-info">
+                <h2 id="trackTitle">Belum ada lagu</h2>
+                <p id="trackArtist">amarPlayer Web</p>
+            </div>
+
+        </section>
+
+
+        <section class="playlist-section">
+
+            <div class="playlist-header">
+                <h3>Playlist</h3>
+                <button id="clearPlaylist">Hapus Playlist</button>
+            </div>
+
+            <div id="playlist" class="playlist">
+
+                <div class="empty-library">
+                    Pilih file musik untuk memulai.
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="player">
+
+        <div class="current-song">
+            <strong id="footerTitle">amarPlayer</strong>
+            <small id="footerArtist">Web Player</small>
+        </div>
+
+
+        <div class="player-center">
+
+            <div class="controls">
+
+                <button id="prevBtn" title="Previous">
+                    ⏮
+                </button>
+
+                <button id="playBtn" class="play-button" title="Play">
+                    ▶
+                </button>
+
+                <button id="nextBtn" title="Next">
+                    ⏭
+                </button>
+
+            </div>
+
+
+            <div class="progress-container">
+
+                <span id="currentTime">0:00</span>
+
+                <input
+                    id="progress"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="0"
+                >
+
+                <span id="duration">0:00</span>
+
+            </div>
+
+        </div>
+
+
+        <div class="volume-container">
+
+            <span>🔊</span>
+
+            <input
+                id="volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.8"
+            >
+
+        </div>
+
+    </footer>
+
+</div>
+
+
+<audio id="audio"></audio>
+
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>

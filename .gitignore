@@ -1,0 +1,25 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Cache / logs
+*.log
+.cache/
+
+# Local amarPlayer configuration
+amarplayer-config.json
+
+# Backup files
+*.backup*
+*.bak
+*~
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
