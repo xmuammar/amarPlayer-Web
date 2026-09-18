@@ -1,279 +1,128 @@
 # amarPlayer Web
 
-amarPlayer Web adalah versi web dari **amarPlayer**, aplikasi pemutar musik yang dikembangkan secara mandiri.
+**amarPlayer Web v1.0** adalah versi web/local-first dari amarPlayer dengan automatic music scanner, metadata library, cover art, history, favorites, persistent queue, Web Audio API 10-band equalizer, spectrum analyzer, Media Session API, dan PWA shell.
 
-Versi ini dirancang untuk membawa pengalaman amarPlayer Desktop ke platform web dengan pendekatan **local-first**, sehingga library musik tetap berasal dari penyimpanan lokal pengguna.
+## Status fitur
 
-## Fitur Saat Ini
+### Core player
+- [x] Automatic recursive music scan
+- [x] Realtime filesystem watcher
+- [x] MP3 / FLAC / WAV / OGG / OPUS / M4A / AAC / WMA discovery
+- [x] Play / pause / previous / next
+- [x] Seek dengan HTTP Range
+- [x] Volume
+- [x] Shuffle
+- [x] Repeat all / repeat one
+- [x] Search
+- [x] Sort artist / title / album / recently modified
 
-* Automatic music library scan
-* Recursive folder scanning
-* Realtime filesystem monitoring menggunakan Watchdog
-* Playlist otomatis
-* Search lagu
-* Play / Pause
-* Previous / Next
-* Auto Next
-* Seek / progress bar
-* Volume control
-* Media Session API
-* Progressive Web App dasar
-* Responsive interface
-* Local music streaming melalui FastAPI
-* Support MP3, FLAC, WAV, OGG, OPUS, M4A, AAC, dan format audio lainnya
-* Tidak perlu memilih file musik satu per satu
+### Metadata
+- [x] Title
+- [x] Artist
+- [x] Album
+- [x] Genre
+- [x] Track number
+- [x] Duration
+- [x] Bitrate
+- [x] Sample rate
+- [x] Channels
+- [x] Embedded cover art
+- [x] Folder cover fallback
 
-## Cara Kerja
+### Local persistence
+- [x] IndexedDB track cache
+- [x] Favorites
+- [x] Playback history
+- [x] Persistent queue/order
+- [x] Volume setting
+- [x] Shuffle/repeat settings
+- [x] Equalizer settings
 
-amarPlayer Web menggunakan dua bagian utama:
+### Audio
+- [x] Web Audio API
+- [x] 10-band parametric equalizer
+- [x] Flat / Bass / Rock / Pop / Vocal / Treble presets
+- [x] Custom EQ
+- [x] Spectrum analyzer
 
-```text
-amarPlayer Web
-      │
-      ├── Frontend
-      │   ├── HTML
-      │   ├── CSS
-      │   ├── JavaScript
-      │   ├── Media Session API
-      │   └── PWA
-      │
-      └── Local Backend
-          ├── Python
-          ├── FastAPI
-          ├── Watchdog
-          └── Automatic Music Scanner
-```
+### Browser integration
+- [x] Media Session metadata
+- [x] Lock-screen/media controls where supported
+- [x] Service Worker
+- [x] PWA manifest
+- [x] Offline application shell
 
-Saat aplikasi dijalankan, backend melakukan scanning otomatis terhadap direktori musik yang telah dikonfigurasi.
+### SSO
+- [x] OIDC/PKCE initiation adapter prepared
+- [ ] amarSSO identity server
 
-```text
-amarPlayer Web Start
-        │
-        ▼
-Automatic Scanner
-        │
-        ▼
-~/Music
-~/Musik
-Custom Music Directory
-        │
-        ▼
-Music Library
-        │
-        ▼
-Playlist
-```
+`amarSSO identity server` sengaja tetap proyek terpisah. amarPlayer tidak membuat autentikasi palsu untuk menandai SSO sebagai selesai.
 
-Watchdog juga memonitor perubahan filesystem.
-
-Jika sebuah lagu ditambahkan, dipindahkan, diubah, atau dihapus, library amarPlayer akan diperbarui kembali.
-
-## Struktur Project
+## Arsitektur
 
 ```text
-amarPlayer-Web/
-│
-├── server.py
-├── index.html
-├── manifest.webmanifest
-├── service-worker.js
-├── requirements.txt
-├── amarplayer-config.example.json
-│
-├── css/
-│   └── main.css
-│
-├── js/
-│   └── app.js
-│
-└── icons/
-    └── icon.svg
+Music folders
+     │
+     ▼
+FastAPI local service
+     ├── Mutagen metadata + artwork
+     ├── Watchdog filesystem events
+     ├── HTTP Range audio streaming
+     └── SSE library updates
+              │
+              ▼
+       amarPlayer Web
+     ├── IndexedDB
+     ├── Web Audio API
+     ├── Media Session
+     ├── PWA shell
+     └── OIDC/PKCE adapter
 ```
 
-## Instalasi
-
-Clone repository:
+## Instalasi Fedora/Linux
 
 ```bash
 git clone https://github.com/xmuammar/amarPlayer-Web.git
 cd amarPlayer-Web
-```
 
-Buat Python virtual environment:
-
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
-```
-
-Install dependency:
-
-```bash
 pip install -r requirements.txt
-```
 
-## Konfigurasi Music Directory
-
-Salin file konfigurasi contoh:
-
-```bash
 cp amarplayer-config.example.json amarplayer-config.json
+./run.sh
 ```
 
-Contoh konfigurasi:
-
-```json
-{
-    "music_dirs": [
-        "~/Music",
-        "~/Musik"
-    ]
-}
-```
-
-Direktori tambahan juga dapat dimasukkan:
-
-```json
-{
-    "music_dirs": [
-        "~/Music",
-        "~/Musik",
-        "~/Downloads/Music"
-    ]
-}
-```
-
-File `amarplayer-config.json` tidak dimasukkan ke Git karena konfigurasi folder dapat berbeda pada setiap komputer.
-
-## Menjalankan amarPlayer Web
-
-Aktifkan virtual environment:
-
-```bash
-source .venv/bin/activate
-```
-
-Jalankan FastAPI server:
-
-```bash
-uvicorn server:app --host 127.0.0.1 --port 8080
-```
-
-Kemudian buka:
+Buka:
 
 ```text
 http://localhost:8080
 ```
 
-amarPlayer akan melakukan scanning library secara otomatis saat server dijalankan.
+## Konfigurasi scanner
+
+`amarplayer-config.json`:
+
+```json
+{
+  "music_dirs": [
+    "~/Music",
+    "~/Musik"
+  ]
+}
+```
+
+Tambahkan folder lain bila perlu. File konfigurasi lokal ini diabaikan Git.
+
+## SSO-ready
+
+`auth-config.example.json` menunjukkan konfigurasi OIDC public client. Jangan membuat `client_secret` di frontend. amarPlayer menyiapkan Authorization Code + PKCE initiation; token exchange akan diselesaikan ketika `amarSSO` identity server dibangun.
 
 ## Keamanan
 
-Local scanner hanya dijalankan melalui:
-
-```text
-127.0.0.1
-```
-
-Hal ini dilakukan karena backend memiliki akses ke direktori musik lokal pengguna.
-
-Jangan mengekspos local scanner langsung ke jaringan publik tanpa authentication dan security layer tambahan.
-
-## Teknologi
-
-### Backend
-
-* Python
-* FastAPI
-* Uvicorn
-* Watchdog
-
-### Frontend
-
-* HTML5
-* CSS3
-* JavaScript
-* HTML Audio
-* Media Session API
-* Service Worker
-* Progressive Web App
-
-## Roadmap
-
-### amarPlayer Web v0.1
-
-* [x] Automatic music scanning
-* [x] Local music streaming
-* [x] Playlist
-* [x] Search
-* [x] Play / Pause
-* [x] Previous / Next
-* [x] Seek
-* [x] Volume
-* [x] Realtime filesystem monitoring
-* [x] PWA foundation
-
-### amarPlayer Web v0.2
-
-* [ ] Metadata reader
-* [ ] Artist information
-* [ ] Album information
-* [ ] Album artwork
-* [ ] Duration scanner
-* [ ] IndexedDB library
-
-### amarPlayer Web v0.3
-
-* [ ] Web Audio API
-* [ ] 10-band equalizer
-* [ ] Equalizer presets
-* [ ] Spectrum analyzer
-* [ ] Audio visualization
-
-### amarPlayer Web v0.4
-
-* [ ] Favorites
-* [ ] History
-* [ ] Persistent playlist
-* [ ] Music library database
-
-### amarPlayer Web v0.5
-
-* [ ] amarSSO integration
-* [ ] User account
-* [ ] Cloud playlist synchronization
-* [ ] Cross-device settings synchronization
-
-## Project Philosophy
-
-amarPlayer dikembangkan bukan hanya sebagai pemutar musik, tetapi sebagai proyek eksplorasi software engineering yang menggabungkan desktop application, web application, audio processing, backend service, local filesystem integration, dan teknologi web modern.
-
-Tujuan pengembangan amarPlayer adalah membangun pemutar musik lintas platform secara mandiri dan terus mengembangkan kemampuan teknis di setiap versinya.
-
-## Platforms
-
-Target ekosistem amarPlayer:
-
-```text
-amarPlayer
-│
-├── Linux
-├── Windows
-├── macOS
-├── Android
-├── iOS
-└── Web / PWA
-```
+Local service bind ke `127.0.0.1` secara default karena mempunyai akses baca ke library musik komputer. Jangan mengganti ke `0.0.0.0` dan mengeksposnya ke jaringan publik tanpa authentication, authorization, TLS, dan pembatasan akses yang sesuai.
 
 ## Developer
 
-**Muammar, SST, M.Kom**
-
+**Muammar, SST, M.Kom**  
 Programmer / Software Engineer
-
-## License
-
-Project ini masih dalam tahap pengembangan.
-
-Lisensi dapat ditentukan pada tahap release berikutnya.
-

@@ -1,104 +1,54 @@
-const CACHE_NAME =
-    "amarplayer-web-v3-auto-only";
-
-const FILES = [
-    "./",
-    "./index.html",
-    "./css/main.css",
-    "./js/app.js",
-    "./manifest.webmanifest",
-    "./icons/icon.svg"
+const CACHE = "amarplayer-web-v1.0.0";
+const SHELL = [
+  "/",
+  "/index.html",
+  "/css/main.css",
+  "/js/app.js",
+  "/js/db.js",
+  "/js/audio-engine.js",
+  "/js/oidc.js",
+  "/manifest.webmanifest",
+  "/icons/icon.svg",
 ];
 
+self.addEventListener("install", event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)));
+  self.skipWaiting();
+});
 
-self.addEventListener(
-    "install",
-    event => {
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))
+    )
+  );
+  self.clients.claim();
+});
 
-        event.waitUntil(
+self.addEventListener("fetch", event => {
+  const url = new URL(event.request.url);
 
-            caches
-                .open(
-                    CACHE_NAME
-                )
-                .then(
-                    cache =>
-                        cache.addAll(
-                            FILES
-                        )
-                )
+  // Never cache local API, audio streams, covers, or SSE.
+  if (
+    event.request.method !== "GET" ||
+    url.pathname.startsWith("/api/")
+  ) {
+    return;
+  }
 
-        );
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      const network = fetch(event.request)
+        .then(response => {
+          if (response.ok && response.type === "basic") {
+            const copy = response.clone();
+            caches.open(CACHE).then(cache => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => cached);
 
-        self.skipWaiting();
-
-    }
-);
-
-
-self.addEventListener(
-    "activate",
-    event => {
-
-        event.waitUntil(
-
-            caches
-                .keys()
-                .then(
-                    keys =>
-                        Promise.all(
-
-                            keys
-                                .filter(
-                                    key =>
-                                        key !==
-                                        CACHE_NAME
-                                )
-                                .map(
-                                    key =>
-                                        caches.delete(
-                                            key
-                                        )
-                                )
-
-                        )
-                )
-
-        );
-
-        self.clients.claim();
-
-    }
-);
-
-
-self.addEventListener(
-    "fetch",
-    event => {
-
-        if (
-            event.request.method !==
-            "GET"
-        ) {
-            return;
-        }
-
-
-        event.respondWith(
-
-            caches
-                .match(
-                    event.request
-                )
-                .then(
-                    cached =>
-                        cached ||
-                        fetch(
-                            event.request
-                        )
-                )
-
-        );
-
-    }
-);
+      return cached || network;
+    })
+  );
+});

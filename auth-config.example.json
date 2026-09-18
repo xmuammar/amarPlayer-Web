@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "issuer": "https://auth.example.com",
+  "client_id": "amarplayer-web",
+  "redirect_uri": "http://localhost:8080/",
+  "scope": "openid profile email",
+  "authorization_endpoint": "https://auth.example.com/oauth/authorize"
+}

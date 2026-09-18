@@ -1,148 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#181818">
-
-    <title>amarPlayer Web</title>
-
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="css/main.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#121212">
+  <meta name="description" content="amarPlayer Web — local-first music player">
+  <title>amarPlayer Web</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/main.css">
 </head>
-
 <body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div>
+        <h1>amarPlayer</h1>
+        <small>Web v1.0</small>
+      </div>
+    </div>
 
-<div class="app">
+    <nav class="nav">
+      <button class="nav-item active" data-view="library"><span>♫</span> Library <b id="songCount">0</b></button>
+      <button class="nav-item" data-view="favorites"><span>♥</span> Favorites <b id="favoriteCount">0</b></button>
+      <button class="nav-item" data-view="history"><span>↺</span> History</button>
+    </nav>
 
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="logo">A</div>
-            <div>
-                <h1>amarPlayer</h1>
-                <small>Web</small>
-            </div>
+    <div class="sidebar-section">
+      <label for="searchInput">Search</label>
+      <input id="searchInput" type="search" placeholder="Judul, artis, album…">
+    </div>
+
+    <div class="scanner-card">
+      <div>
+        <span id="scannerDot" class="status-dot"></span>
+        <strong id="scannerStatus">Connecting…</strong>
+      </div>
+      <small id="scannerDetail">Local scanner</small>
+      <button id="rescanBtn">Rescan Library</button>
+    </div>
+
+    <div class="account-card" id="accountCard" hidden>
+      <span id="accountName">SSO</span>
+      <button id="loginBtn">Sign in</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow" id="viewEyebrow">LOCAL MUSIC</p>
+        <h2 id="viewTitle">Library</h2>
+      </div>
+      <div class="topbar-actions">
+        <select id="sortSelect" aria-label="Urutkan lagu">
+          <option value="artist">Artist</option>
+          <option value="title">Title</option>
+          <option value="album">Album</option>
+          <option value="recent">Recently modified</option>
+        </select>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="cover-shell">
+        <img id="coverArt" alt="" hidden>
+        <div id="coverFallback" class="cover-fallback">♪</div>
+      </div>
+
+      <div class="hero-info">
+        <p class="eyebrow">NOW PLAYING</p>
+        <h3 id="trackTitle">Belum ada lagu</h3>
+        <p id="trackMeta">amarPlayer Web</p>
+        <p id="trackTechnical" class="technical"></p>
+        <button id="favoriteBtn" class="favorite-main" title="Favorite" disabled>♡ Favorite</button>
+      </div>
+
+      <canvas id="spectrum" width="900" height="220" aria-label="Audio spectrum"></canvas>
+    </section>
+
+    <section class="content-grid">
+      <div class="library-panel">
+        <div class="section-heading">
+          <div>
+            <h3 id="listTitle">Music Library</h3>
+            <small id="listSubtitle">Automatic scanner</small>
+          </div>
+          <span id="resultCount">0 tracks</span>
+        </div>
+        <div id="trackList" class="track-list"></div>
+      </div>
+
+      <aside class="eq-panel">
+        <div class="section-heading">
+          <div>
+            <h3>Equalizer</h3>
+            <small>Web Audio API · 10 bands</small>
+          </div>
+          <button id="eqResetBtn" class="text-btn">Reset</button>
         </div>
 
-        <div class="library-info">
-            <span>Library</span>
-            <strong id="songCount">0 lagu</strong>
-        </div>
+        <label class="preset-label">
+          Preset
+          <select id="presetSelect">
+            <option value="Flat">Flat</option>
+            <option value="Bass">Bass</option>
+            <option value="Rock">Rock</option>
+            <option value="Pop">Pop</option>
+            <option value="Vocal">Vocal</option>
+            <option value="Treble">Treble</option>
+            <option value="Custom">Custom</option>
+          </select>
+        </label>
 
-        <input
-            type="search"
-            id="searchInput"
-            placeholder="Cari lagu..."
-        >
-    </aside>
+        <div id="eqBands" class="eq-bands"></div>
+      </aside>
+    </section>
+  </main>
 
+  <footer class="playerbar">
+    <div class="mini-track">
+      <div class="mini-cover"><img id="miniCover" alt="" hidden><span id="miniCoverFallback">♪</span></div>
+      <div>
+        <strong id="footerTitle">amarPlayer</strong>
+        <small id="footerArtist">Web Player</small>
+      </div>
+    </div>
 
-    <main class="main">
+    <div class="transport">
+      <div class="transport-buttons">
+        <button id="shuffleBtn" title="Shuffle">⇄</button>
+        <button id="prevBtn" title="Previous">⏮</button>
+        <button id="playBtn" class="play-btn" title="Play">▶</button>
+        <button id="nextBtn" title="Next">⏭</button>
+        <button id="repeatBtn" title="Repeat">↻</button>
+      </div>
+      <div class="timeline">
+        <span id="currentTime">0:00</span>
+        <input id="progress" type="range" min="0" max="1000" value="0">
+        <span id="duration">0:00</span>
+      </div>
+    </div>
 
-        <section class="now-playing">
-
-            <div class="album-art" id="albumArt">
-                ♪
-            </div>
-
-            <div class="track-info">
-                <h2 id="trackTitle">Belum ada lagu</h2>
-                <p id="trackArtist">amarPlayer Web</p>
-            </div>
-
-        </section>
-
-
-        <section class="playlist-section">
-
-            <div class="playlist-header">
-                <h3>Playlist</h3>
-                <button id="clearPlaylist">Hapus Playlist</button>
-            </div>
-
-            <div id="playlist" class="playlist">
-
-                <div class="empty-library">
-                    Pilih file musik untuk memulai.
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <footer class="player">
-
-        <div class="current-song">
-            <strong id="footerTitle">amarPlayer</strong>
-            <small id="footerArtist">Web Player</small>
-        </div>
-
-
-        <div class="player-center">
-
-            <div class="controls">
-
-                <button id="prevBtn" title="Previous">
-                    ⏮
-                </button>
-
-                <button id="playBtn" class="play-button" title="Play">
-                    ▶
-                </button>
-
-                <button id="nextBtn" title="Next">
-                    ⏭
-                </button>
-
-            </div>
-
-
-            <div class="progress-container">
-
-                <span id="currentTime">0:00</span>
-
-                <input
-                    id="progress"
-                    type="range"
-                    min="0"
-                    max="100"
-                    value="0"
-                >
-
-                <span id="duration">0:00</span>
-
-            </div>
-
-        </div>
-
-
-        <div class="volume-container">
-
-            <span>🔊</span>
-
-            <input
-                id="volume"
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value="0.8"
-            >
-
-        </div>
-
-    </footer>
-
+    <div class="volume">
+      <span>🔊</span>
+      <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+    </div>
+  </footer>
 </div>
 
+<audio id="audio" preload="metadata"></audio>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<audio id="audio"></audio>
-
-<script type="module" src="js/app.js"></script>
-
+<script type="module" src="/js/app.js"></script>
 </body>
 </html>
